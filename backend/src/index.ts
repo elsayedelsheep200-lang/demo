@@ -110,3 +110,32 @@ app.listen(8000, async () => {
   console.log('App platform demo app - Backend listening on port 8000!');
   console.log(`CORS config: configured to respond to a frontend hosted on ${env.frontend_url}`);
 });
+// أضف axios في أعلى الملف مع باقي الـ imports
+import axios from 'axios'; 
+
+// مسارات معالجة مدفوعات Pi لإنهاء الخطوة 10
+const PI_API_KEY = env.pi_api_key; // سيعتمد على ملف environments.ts الذي لديك
+
+app.post('/api/pi/approve', async (req, res) => {
+  const { paymentId } = req.body;
+  try {
+    await axios.post(`https://api.minepi.com/v2/payments/${paymentId}/approve`, {}, {
+      headers: { 'Authorization': `Key ${PI_API_KEY}` }
+    });
+    res.json({ message: "Approved" });
+  } catch (err) {
+    res.status(500).json({ error: "Approval failed" });
+  }
+});
+
+app.post('/api/pi/complete', async (req, res) => {
+  const { paymentId, txid } = req.body;
+  try {
+    await axios.post(`https://api.minepi.com/v2/payments/${paymentId}/complete`, { txid }, {
+      headers: { 'Authorization': `Key ${PI_API_KEY}` }
+    });
+    res.json({ message: "Completed" });
+  } catch (err) {
+    res.status(500).json({ error: "Completion failed" });
+  }
+});
